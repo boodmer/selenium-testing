@@ -23,5 +23,5 @@ class LoginPage:
     
     def get_error_message(self):
          return self.driver.wait.until(
-            EC.visibility_of_element_located((By.CLASS_NAME, ".error-message"))
+            EC.visibility_of_element_located((By.CLASS_NAME, "error-message"))
         ).text     
