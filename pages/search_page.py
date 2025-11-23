@@ -4,11 +4,6 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 class SearchPage:
-    """
-    Page Object cho chức năng Tìm kiếm sản phẩm.
-    Giả định: user đã đăng nhập và đang ở trang có ô searchInput.
-    """
-
     def __init__(self, driver):
         self.driver = driver
 
@@ -102,6 +97,5 @@ class SearchPage:
 
         # Lấy product-item đầu tiên
         first_item = self.driver.find_element(By.CSS_SELECTOR, ".product-item")
-
 
         return first_item.text.strip()
