@@ -6,8 +6,6 @@ from pages.login_page import LoginPage
 from dotenv import load_dotenv
 
 
-    
-
 @pytest.fixture
 def driver():
     driver = webdriver.Chrome()
