@@ -1,11 +1,12 @@
 import pytest
+import os
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-
 from pages.login_page import LoginPage
-from pages.search_page import SearchPage
+from dotenv import load_dotenv
+
+
+    
 
 @pytest.fixture
 def driver():
@@ -17,9 +18,12 @@ def driver():
 
 @pytest.fixture
 def logged_in_driver(driver):
+    load_dotenv()
+    TEST_USER_EMAIL = os.getenv("TEST_USER_EMAIL", "minhchi@gmail.com")
+    TEST_USER_PASSWORD = os.getenv("TEST_USER_PASSWORD", "12345678")
     login_page = LoginPage(driver)
     login_page.open()
-    login_page.login("minhchi@gmail.com", "12345678")
+    login_page.login(TEST_USER_EMAIL, TEST_USER_PASSWORD)
 
     driver.wait.until(
         lambda d: d.execute_script("return document.readyState") == "complete"
