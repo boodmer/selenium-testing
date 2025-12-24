@@ -33,3 +33,21 @@ def logged_in_driver(driver):
     )
 
     return driver
+
+@pytest.fixture
+def logged_in_admin_driver(driver):
+    load_dotenv()
+    TEST_USER_EMAIL = os.getenv("TEST_USER_EMAIL", "minhchi@gmail.com")
+    TEST_USER_PASSWORD = os.getenv("TEST_USER_PASSWORD", "12345678")
+    login_page = LoginPage(driver)
+    login_page.open()
+    login_page.login(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+
+    # Chờ trang load xong
+    driver.wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
+
+    # Chờ URL dashboard
+    driver.wait.until(lambda d: "/dashboard/index" in d.current_url)
+
+    # ✅ QUAN TRỌNG: return driver
+    return driver
