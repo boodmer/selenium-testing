@@ -124,3 +124,49 @@ def test_add_employee_invalid_image(logged_in_admin_driver):
     add_page.click_submit()
 
     assert add_page.is_error_displayed("image")
+
+# =========================
+# TC6 — Số điện thoại trùng
+# =========================
+def test_add_employee_duplicate_phone(logged_in_admin_driver):
+    driver = logged_in_admin_driver
+
+    dashboard = DashboardPage(driver)
+    dashboard.click_employee_menu()
+
+    employee_list = EmployeeListPage(driver)
+    employee_list.click_add_employee()
+
+    add_page = AddEmployeePage(driver)
+
+    # Số điện thoại đã tồn tại trong hệ thống
+    add_page.enter_name("Le Trung Kien")
+    add_page.enter_phone("0327264556")  # ❌ trùng với nhân viên khác
+    add_page.enter_position("Nhân viên kho")
+    add_page.enter_address("Hà Nội")
+
+    add_page.click_submit()
+
+    # Kiểm tra hiển thị lỗi trùng số điện thoại
+    assert add_page.is_error_displayed("phone")
+
+# =========================
+# TC7 — Địa chỉ bỏ trống
+# =========================
+def test_add_employee_address_empty(logged_in_admin_driver):
+    driver = logged_in_admin_driver
+
+    dashboard = DashboardPage(driver)
+    dashboard.click_employee_menu()
+
+    EmployeeListPage(driver).click_add_employee()
+    add_page = AddEmployeePage(driver)
+
+    add_page.enter_name("Vu Minh Quan")
+    add_page.enter_phone("0977889900")
+    add_page.enter_position("Bảo vệ")
+    add_page.enter_address("")  # ❌ bỏ trống
+
+    add_page.click_submit()
+
+    assert add_page.is_error_displayed("address")
