@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 @pytest.fixture
 def driver():
+    load_dotenv()
     driver = webdriver.Chrome()
     driver.maximize_window()
     driver.wait = WebDriverWait(driver, 15)

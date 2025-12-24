@@ -54,3 +54,19 @@ class LoginPage:
         return self._wait().until(
             EC.visibility_of_element_located((By.CLASS_NAME, "error-message"))
         ).text
+    
+    def get_second_error_message(self):
+        """
+        Lấy error-message thứ 2 (thường là lỗi mật khẩu).
+        """
+        self._wait().until(
+            EC.presence_of_all_elements_located((By.CLASS_NAME, "error-message"))
+        )
+
+        error_elements = self.driver.find_elements(By.CLASS_NAME, "error-message")
+
+        if len(error_elements) >= 2:
+            return error_elements[1].text.strip()
+        return ""
+
+
