@@ -3,17 +3,14 @@ import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
 from pages.profile_page import ProfilePage
 
 # ================= CONFIG =================
 BASE_URL = "http://127.0.0.1:8000"
-LOGIN_URL = f"{BASE_URL}/login"
 PROFILE_URL = f"{BASE_URL}/profile"
 WAIT_TIME = 20
 
 TEST_EMAIL = "minhchi@gmail.com"
-TEST_PASSWORD = "12345678"
 
 ORIGINAL_DATA = {
     "name": "Lê Tuấn Anh Gốc",
@@ -27,53 +24,28 @@ ORIGINAL_DATA = {
 # =========================================
 
 
-# ================= HELPER =================
-def login(driver, wait):
-    driver.get(LOGIN_URL)
+# ================= FIXTURE =================
+@pytest.fixture
+def profile_page(logged_in_driver):
+    driver = logged_in_driver
+    wait = WebDriverWait(driver, WAIT_TIME)
 
-    EMAIL = (By.XPATH, "//input[@type='email' or @name='email' or contains(@placeholder,'Email')]")
-    PASSWORD = (By.XPATH, "//input[@type='password' or @name='password']")
-    LOGIN_BTN = (By.XPATH, "//button[@type='submit' or contains(text(),'ĐĂNG NHẬP') or contains(text(),'Login')]")
-
-    wait.until(EC.presence_of_element_located(EMAIL)).send_keys(TEST_EMAIL)
-    driver.find_element(*PASSWORD).send_keys(TEST_PASSWORD)
-    driver.find_element(*LOGIN_BTN).click()
-
-    wait.until(
-        EC.presence_of_element_located(
-            (By.XPATH, "//input[contains(@placeholder,'Tìm kiếm')] | //h1[contains(text(),'TRANG CHỦ')]")
-        )
-    )
-    time.sleep(1)
-
-
-def restore_profile(driver, wait, profile):
     driver.get(PROFILE_URL)
-    wait.until(EC.presence_of_element_located(profile.NAME_INPUT))
+    profile = ProfilePage(driver)
 
+    # Restore data gốc trước mỗi test
+    wait.until(EC.presence_of_element_located(profile.NAME_INPUT))
     profile.fill_profile(**ORIGINAL_DATA)
     profile.submit()
 
-    try:
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located(profile.SUCCESS_ALERT))
-    except TimeoutException:
-        pass
-
     driver.get(PROFILE_URL)
     wait.until(EC.presence_of_element_located(profile.NAME_INPUT))
 
-
-# ================= FIXTURE =================
-@pytest.fixture
-def profile_page(driver):
-    wait = WebDriverWait(driver, WAIT_TIME)
-    login(driver, wait)
-    profile = ProfilePage(driver)
-    restore_profile(driver, wait, profile)
     return profile
 
 
 # ================= TEST CASES =================
+
 def test_01_update_all_fields_successful(profile_page):
     driver = profile_page.driver
     new_name = f"User Test {time.strftime('%M%S')}"
@@ -109,6 +81,7 @@ def test_02_address_missing_fails(profile_page):
         year=ORIGINAL_DATA["year"]
     )
     profile_page.submit()
+
     assert profile_page.is_error_displayed("address")
 
 
@@ -127,6 +100,7 @@ def test_03_invalid_email_format_fails(profile_page):
         year=ORIGINAL_DATA["year"]
     )
     profile_page.submit()
+
     assert profile_page.is_error_displayed("email")
 
 
@@ -141,11 +115,13 @@ def test_04_invalid_phone_fails(profile_page):
         year=ORIGINAL_DATA["year"]
     )
     profile_page.submit()
+
     assert profile_page.is_error_displayed("phone")
 
 
 def test_05_future_birthday_fails(profile_page):
     future_year = str(time.localtime().tm_year + 1)
+
     year_select = profile_page.driver.find_element(*profile_page.YEAR_SELECT)
     values = [o.get_attribute("value") for o in year_select.find_elements(By.TAG_NAME, "option")]
 
@@ -163,5 +139,4 @@ def test_05_future_birthday_fails(profile_page):
     )
     profile_page.submit()
 
-    ERROR = (By.XPATH, "//*[contains(text(),'Ngày sinh')]")
-    WebDriverWait(profile_page.driver, 5).until(EC.presence_of_element_located(ERROR))
+    assert profile_page.is_error_displayed()
