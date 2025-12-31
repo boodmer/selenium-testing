@@ -1,6 +1,9 @@
 import time
 import logging
 from pages.add_product_page import DashboardPage, ProductListPage, AddProductPage
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +29,7 @@ def test_add_product_success(logged_in_admin_driver):
     page.enter_brand("GRANT")
     page.enter_sku("SKU" + str(int(time.time())))
     page.enter_description("Sản phẩm test tự động bằng Selenium")
-    page.upload_image("E:/test/bike.jpg")
+    page.upload_image(str(BASE_DIR / "resources" / "employee.jpg"))
 
     # ================= Submit form =================
     page.click_submit()

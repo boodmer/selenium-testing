@@ -37,8 +37,8 @@ def logged_in_driver(driver):
 @pytest.fixture
 def logged_in_admin_driver(driver):
     load_dotenv()
-    TEST_USER_EMAIL = os.getenv("TEST_USER_EMAIL", "minhchi@gmail.com")
-    TEST_USER_PASSWORD = os.getenv("TEST_USER_PASSWORD", "12345678")
+    TEST_USER_EMAIL = os.getenv("TEST_ADMIN_EMAIL", "minhchi@gmail.com")
+    TEST_USER_PASSWORD = os.getenv("TEST_ADMIN_PASSWORD", "12345678")
     login_page = LoginPage(driver)
     login_page.open()
     login_page.login(TEST_USER_EMAIL, TEST_USER_PASSWORD)

@@ -1,6 +1,9 @@
 import time
 import logging
 from pages.add_employee_page import DashboardPage, EmployeeListPage, AddEmployeePage
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +30,7 @@ def test_add_employee_success(logged_in_admin_driver):
     add_page.enter_phone("0912345678")
     add_page.enter_position("Nhân viên bán hàng")
     add_page.enter_address("Hồ Chí Minh")
-    add_page.upload_image("E:/test/employee.jpg")
+    add_page.upload_image(str(BASE_DIR / "resources" / "employee.jpg"))
 
     add_page.click_submit()
 
@@ -119,7 +122,7 @@ def test_add_employee_invalid_image(logged_in_admin_driver):
     add_page.enter_position("Quản lý")
     add_page.enter_address("Biên Hòa")
 
-    add_page.upload_image("E:/test/file.txt")  # ❌ file sai loại
+    add_page.upload_image(str(BASE_DIR / "resources" / "file.txt"))  # ❌ file sai loại
 
     add_page.click_submit()
 
