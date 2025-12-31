@@ -5,7 +5,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
-# Page Object
 from pages.view_product_page import ProductDetailPage
 
 # ================= CONFIG =================
@@ -23,17 +22,13 @@ PRODUCT_DATA = {
 # =========================================
 
 
-# ================= FIXTURE =================
-@pytest.fixture
-def product_detail_page(logged_in_driver):
-    driver = logged_in_driver
+# ========== HELPER ==========
+def go_to_product_detail(driver):
     wait = WebDriverWait(driver, WAIT_TIME)
 
-    # Điều hướng tới trang chủ
     driver.get(HOME_URL)
     time.sleep(1)
 
-    # Cuộn để tìm sản phẩm
     driver.execute_script("window.scrollTo(0, 1000);")
     time.sleep(2)
 
@@ -48,10 +43,8 @@ def product_detail_page(logged_in_driver):
     except TimeoutException:
         pytest.fail(f"🛑 Không tìm thấy link sản phẩm ID {PRODUCT_DATA['id']}")
 
-    # Khởi tạo Page Object
     page = ProductDetailPage(driver)
 
-    # Chờ trang chi tiết load xong
     try:
         page.wait_for_page_to_load(PRODUCT_DATA["discounted_price"])
     except TimeoutException:
@@ -62,38 +55,53 @@ def product_detail_page(logged_in_driver):
 
 # ================= TEST CASES =================
 
-def test_01_product_price_and_discount(product_detail_page):
+# ================= TC1 =================
+def test_01_product_price_and_discount(logged_in_driver):
     """TC1: Kiểm tra hiển thị giá & giảm giá"""
-    assert product_detail_page.check_price_and_discount(
+    driver = logged_in_driver
+    page = go_to_product_detail(driver)
+
+    assert page.check_price_and_discount(
         PRODUCT_DATA["discounted_price"],
         PRODUCT_DATA["original_price"],
         PRODUCT_DATA["discount_tag"]
     ), "TC1 FAILED: Giá hoặc tag giảm giá không hiển thị đúng"
 
 
-def test_02_product_description_and_reviews_visible(product_detail_page):
+# ================= TC2 =================
+def test_02_product_description_and_reviews_visible(logged_in_driver):
     """TC2: Kiểm tra mô tả và đánh giá"""
-    assert product_detail_page.check_content_sections(scroll_px=1500), (
+    driver = logged_in_driver
+    page = go_to_product_detail(driver)
+
+    assert page.check_content_sections(scroll_px=1500), (
         "TC2 FAILED: Không thấy Mô tả hoặc Đánh giá"
     )
 
-    # Cuộn về đầu trang
-    product_detail_page.driver.execute_script("window.scrollTo(0, 0);")
+    driver.execute_script("window.scrollTo(0, 0);")
 
 
-def test_03_add_to_cart_elements_exist(product_detail_page):
+# ================= TC3 =================
+def test_03_add_to_cart_elements_exist(logged_in_driver):
     """TC3: Kiểm tra phần tử mua hàng"""
-    product_detail_page.driver.execute_script("window.scrollTo(0, 700);")
+    driver = logged_in_driver
+    page = go_to_product_detail(driver)
+
+    driver.execute_script("window.scrollTo(0, 700);")
     time.sleep(1)
 
-    assert product_detail_page.check_purchase_elements(), (
+    assert page.check_purchase_elements(), (
         "TC3 FAILED: Thiếu input số lượng hoặc nút Thêm vào giỏ"
     )
 
 
-def test_04_quantity_increment(product_detail_page):
+# ================= TC4 =================
+def test_04_quantity_increment(logged_in_driver):
     """TC4: Kiểm tra tăng số lượng"""
-    initial_value, new_value = product_detail_page.increment_quantity()
+    driver = logged_in_driver
+    page = go_to_product_detail(driver)
+
+    initial_value, new_value = page.increment_quantity()
 
     assert new_value == initial_value + 1, (
         f"TC4 FAILED: Số lượng không tăng (ban đầu {initial_value}, sau {new_value})"
