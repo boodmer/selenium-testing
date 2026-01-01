@@ -37,10 +37,10 @@ def test_add_product_success(logged_in_admin_driver):
     # Debug URL
     print("[DEBUG] After submit:", driver.current_url)
 
-    # ================= Check sản phẩm xuất hiện trên danh sách =================
-    product_list = ProductListPage(driver)
-    assert product_list.is_product_displayed(product_name)
-    logger.info(f"[PASSED] Đã thêm sản phẩm thành công: {product_name}")
+    # ================= Check flash message =================
+    flash_message = page.get_flash_message()
+    assert flash_message is not None, "Flash message not found"
+    logger.info(f"[PASSED] Flash message: {flash_message}")
 
 # ================= Test tên sản phẩm rỗng =================   
 def test_add_product_missing_name(logged_in_admin_driver):

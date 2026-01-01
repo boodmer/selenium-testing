@@ -1,6 +1,9 @@
 # pages/product_page.py
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import ElementClickInterceptedException
+import time
 
 
 class ProductPage:
@@ -82,7 +85,15 @@ class ProductPage:
         Click nút thêm vào giỏ hàng id="addToCartBtn".
         """
         btn = self.driver.find_element(By.ID, "addToCartBtn")
-        btn.click()
+        try:
+            # Chờ phần tử có thể click được
+            self.driver.wait.until(EC.element_to_be_clickable((By.ID, "addToCartBtn")))
+            btn.click()
+        except ElementClickInterceptedException:
+            # Nếu bị che phủ, scroll vào view rồi click bằng JS làm fallback
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", btn)
+            time.sleep(0.2)
+            self.driver.execute_script("arguments[0].click();", btn)
 
     def is_add_to_cart_enabled(self) -> bool:
         """

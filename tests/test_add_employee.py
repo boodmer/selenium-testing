@@ -2,11 +2,15 @@ import time
 import logging
 from pages.add_employee_page import DashboardPage, EmployeeListPage, AddEmployeePage
 from pathlib import Path
+import random
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 logger = logging.getLogger(__name__)
 
+
+def generate_fake_phone():
+    return "09" + "".join(str(random.randint(0, 9)) for _ in range(8))
 
 # =========================
 # TC1 — Thêm nhân viên hợp lệ
@@ -27,7 +31,8 @@ def test_add_employee_success(logged_in_admin_driver):
     employee_name = f"Nguyen Van A {timestamp}"
 
     add_page.enter_name(employee_name)
-    add_page.enter_phone("0912345678")
+    # create fake phone number start wwith 09 and 8 digits after        
+    add_page.enter_phone(generate_fake_phone())
     add_page.enter_position("Nhân viên bán hàng")
     add_page.enter_address("Hồ Chí Minh")
     add_page.upload_image(str(BASE_DIR / "resources" / "employee.jpg"))
